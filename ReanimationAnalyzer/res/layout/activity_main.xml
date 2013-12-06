@@ -15,14 +15,37 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="60sp"
-        android:text="Chronometer" />
+        android:text="Chronometer"
+        android:textSize="60sp" />
 
     <Button
-        android:layout_gravity="center"
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="@string/lblStartTraining" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <RelativeLayout
+        android:id="@+id/indicator_container"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/quality_gradient" >
+
+        <ImageView
+            android:id="@+id/indicator"
+            android:layout_width="4dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:src="@android:color/black" />
+
+    </RelativeLayout>
+
 
 </LinearLayout>
