@@ -15,8 +15,15 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Chronometer"
-        android:textSize="60sp" />
+        android:textSize="100sp" />
+    
+    <TextView
+	    android:id="@+id/intro"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="@string/introduction"
+	    android:layout_marginBottom="20dp"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/button"
@@ -26,10 +33,36 @@
         android:text="@string/lblStartTraining" />
 
     <TextView
-        android:id="@+id/tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+	    android:id="@+id/tv"
+	    android:layout_width="wrap_content"
+	    android:layout_height="0dip"
+	    android:layout_weight="1"
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+    
+    <RelativeLayout
+        android:id="@+id/indicator_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/toofast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="zu schnell"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/tooslow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="zu langsam"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/indicator_container"
@@ -44,8 +77,6 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:src="@android:color/black" />
-
     </RelativeLayout>
-
 
 </LinearLayout>
