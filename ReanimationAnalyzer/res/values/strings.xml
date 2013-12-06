@@ -8,5 +8,11 @@
     
     <string name="lblStartTraining">Training starten</string>
     <string name="lblStopTraining">Training beenden</string>
+    
+    <string name="durationMinuteSingular">Eine Minute</string>
+    <string name="durationMinutePlural">%s Minuten</string>
+    
+    <string name="durationSecondSingular">eine Sekunde</string>
+    <string name="durationSecondPlural">%s Sekunden</string>
 
 </resources>

@@ -78,8 +78,26 @@ public class ResultListActivity extends Activity {
 			
 			TextView description = ((TextView) convertView.findViewById(R.id.description));
 			ImageView icon = ((ImageView) convertView.findViewById(R.id.icon));
-
-			description.setText(sdf.format(currentResult.getDate()) + "\nDauer: " + currentResult.getDuration() + " Sekunden");
+			
+			StringBuilder durationString = new StringBuilder();
+			int seconds = currentResult.getDuration() % 60;
+			int minutes = currentResult.getDuration() / 60;
+			
+			if(minutes > 0){
+				durationString.append(minutes == 1 ? getString(R.string.durationMinuteSingular) : getString(R.string.durationMinutePlural, minutes));
+				durationString.append(" ");
+			}
+			
+			if(seconds > 0){
+				durationString.append(seconds == 1 ? getString(R.string.durationSecondSingular) : getString(R.string.durationSecondPlural, seconds));
+				durationString.append(" ");
+			}
+			
+			if(minutes < 1 && seconds < 1){
+				durationString.append(getString(R.string.durationSecondPlural, seconds));
+			}
+			
+			description.setText(sdf.format(currentResult.getDate()) + "\nDauer: " + durationString.toString());
 			
 			switch(currentResult.getQuality()){
 				case 1:
