@@ -14,5 +14,7 @@
     
     <string name="durationSecondSingular">eine Sekunde</string>
     <string name="durationSecondPlural">%s Sekunden</string>
+    
+    <string name="lblResetDatabase">Datenbank zurücksetzen</string>
 
 </resources>

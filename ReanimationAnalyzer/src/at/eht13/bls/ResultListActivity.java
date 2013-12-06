@@ -2,7 +2,6 @@ package at.eht13.bls;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import at.eht13.bls.db.TrainingResultDAO;
 import at.eht13.bls.model.TrainingResult;
 
 public class ResultListActivity extends Activity {
@@ -35,13 +35,8 @@ public class ResultListActivity extends Activity {
 	}
 	
 	private void initResults(){
-		results = new ArrayList<TrainingResult>();
-		results.add(new TrainingResult(new Date(), 90, 1));
-		results.add(new TrainingResult(new Date(), 34, 2));
-		results.add(new TrainingResult(new Date(), 4, 3));
-		results.add(new TrainingResult(new Date(), 23, 3));
-		results.add(new TrainingResult(new Date(), 452, 1));
-		results.add(new TrainingResult(new Date(), 24, 2));
+		TrainingResultDAO.init(getApplicationContext());
+		results = TrainingResultDAO.getAllTrainings();
 	}
 	
 	private class ResultAdapter extends BaseAdapter {

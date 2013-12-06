@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class TrainingResult {
 	
+	private int id;
 	private Date date;
 	private int duration;
 	private int quality;
@@ -16,6 +17,13 @@ public class TrainingResult {
 		this.quality = quality;
 	}
 	
+	public TrainingResult(int id, Date date, int duration, int quality){
+		this.id = id;
+		this.date = date;
+		this.duration = duration;
+		this.quality = quality;
+	}
+
 	public Date getDate() {
 		return date;
 	}
@@ -38,6 +46,14 @@ public class TrainingResult {
 	
 	public void setQuality(int quality) {
 		this.quality = quality;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 }

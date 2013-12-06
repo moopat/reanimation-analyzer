@@ -3,25 +3,25 @@ package at.eht13.bls;
 import java.util.Date;
 import java.util.Random;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.app.Activity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.Chronometer.OnChronometerTickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import at.eht13.bls.R;
-import android.view.animation.Transformation;
+import at.eht13.bls.db.TrainingResultDAO;
+import at.eht13.bls.model.TrainingResult;
 
 public class MainActivity extends Activity implements OnClickListener, OnChronometerTickListener {
 	
@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements OnClickListener, OnChronom
 	
 	private long startTime;
 	private long endTime;
-
+			
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +53,7 @@ public class MainActivity extends Activity implements OnClickListener, OnChronom
         
         chronometer.setOnChronometerTickListener(this);
                 
-        
+        TrainingResultDAO.init(getApplicationContext());
     }
 
 
@@ -81,6 +81,16 @@ public class MainActivity extends Activity implements OnClickListener, OnChronom
 
     	float duration = (float) ((int) (endTime - startTime))/1000;
     	tv.setText("Dauer: " + duration);
+    	
+    	TrainingResult tr = new TrainingResult();
+    	tr.setDate(new Date());
+    	tr.setQuality((new Random().nextInt(3)) + 1);
+    	tr.setDuration((int) Math.ceil(duration));
+    	
+    	TrainingResultDAO.insert(tr);
+    	
+    	Intent intent = new Intent(this, ResultListActivity.class);
+    	startActivity(intent);
     }
 
 
@@ -119,6 +129,18 @@ public class MainActivity extends Activity implements OnClickListener, OnChronom
 		indicator.startAnimation(a);
 		tv.setText(efficiency + "%");
 
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.action_reset:
+	            TrainingResultDAO.deleteAll();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
     
 }
