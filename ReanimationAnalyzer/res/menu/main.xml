@@ -11,5 +11,12 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/lblResetDatabase"/>
+    
+    <item
+        android:id="@+id/action_results"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/title_activity_result_list"
+        android:icon="@drawable/ic_action_list"/>
 
 </menu>

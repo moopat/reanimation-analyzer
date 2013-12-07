@@ -16,6 +16,7 @@
     <string name="durationSecondPlural">%s Sekunden</string>
     
     <string name="lblResetDatabase">Datenbank zurücksetzen</string>
+    <string name="emptyResultList">Es gibt noch keine Trainingsergebnisse</string>
     
     <string name="introduction">Lege das Smartphone in die Mitte des Brustkorbs, drücke Start und beginne mit der Reanimation (platziere deine Hände am Handy).</string>
 

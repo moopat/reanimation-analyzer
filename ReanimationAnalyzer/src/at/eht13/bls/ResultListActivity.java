@@ -4,8 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +16,16 @@ import android.widget.TextView;
 import at.eht13.bls.db.TrainingResultDAO;
 import at.eht13.bls.model.TrainingResult;
 
+import com.google.android.apps.dashclock.ui.SwipeDismissListViewTouchListener;
+
 public class ResultListActivity extends Activity {
 	
 	private ArrayList<TrainingResult> results;
 	private ListView list;
+	private TextView empty;
+	
 	private SimpleDateFormat sdf = new SimpleDateFormat("d. MMMM, H:mm", Locale.getDefault());
+	private ResultAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +33,32 @@ public class ResultListActivity extends Activity {
 		setContentView(R.layout.activity_result_list);
 		
 		list = (ListView) findViewById(R.id.list);
-		
+		empty = (TextView) findViewById(R.id.empty);
+
 		initResults();
 		
-		list.setAdapter(new ResultAdapter());
+		adapter = new ResultAdapter();
+		list.setAdapter(adapter);
+		list.setEmptyView(empty);
+		
+		SwipeDismissListViewTouchListener touchListener =
+	      new SwipeDismissListViewTouchListener(
+	              list,
+	              new SwipeDismissListViewTouchListener.DismissCallbacks() {
+	                  public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+	                      for (int position : reverseSortedPositions) {
+	                          adapter.remove(adapter.getItem(position));
+	                      }
+	                      adapter.notifyDataSetChanged();
+	                  }
+
+					@Override
+					public boolean canDismiss(int position) {
+						return true;
+					}
+	              });
+		 list.setOnTouchListener(touchListener);
+		 list.setOnScrollListener(touchListener.makeScrollListener());
 	}
 	
 	private void initResults(){
@@ -46,6 +73,11 @@ public class ResultListActivity extends Activity {
 		@Override
 		public int getCount() {
 			return results.size();
+		}
+
+		public void remove(Object item) {
+			results.remove(item);
+			TrainingResultDAO.delete((TrainingResult) item);
 		}
 
 		@Override

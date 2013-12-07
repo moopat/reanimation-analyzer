@@ -138,6 +138,10 @@ public class MainActivity extends Activity implements OnClickListener, OnChronom
 	        case R.id.action_reset:
 	            TrainingResultDAO.deleteAll();
 	            return true;
+	        case R.id.action_results:
+	        	Intent intent = new Intent(this, ResultListActivity.class);
+	        	startActivity(intent);
+	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }

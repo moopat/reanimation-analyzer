@@ -67,6 +67,8 @@ public class TrainingResultDAO {
 				result.add(tr);
 				cursor.moveToNext();
 			} while (!cursor.isAfterLast());
+		} catch (Exception e) {
+			// Something went wrong
 		} finally {
 			if(cursor != null){
 				cursor.close();
@@ -80,6 +82,11 @@ public class TrainingResultDAO {
 	public static void deleteAll(){
 		SQLiteDatabase db = doh.getWritableDatabase();
 		db.delete("trainings", null, null);
+	}
+	
+	public static void delete(TrainingResult tr){
+		SQLiteDatabase db = doh.getWritableDatabase();
+		db.delete("trainings", "id = ?", new String[]{String.valueOf(tr.getId())});
 	}
 
 }
