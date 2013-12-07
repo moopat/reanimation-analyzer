@@ -26,6 +26,12 @@
             android:name="at.eht13.bls.ResultListActivity"
             android:label="@string/title_activity_result_list" >
         </activity>
+        <activity
+            android:name="at.eht13.bls.ReanimationActivity"
+            android:label="Reanimation"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
+        </activity>
     </application>
 
 </manifest>

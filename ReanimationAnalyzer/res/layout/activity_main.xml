@@ -10,13 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <Chronometer
-        android:id="@+id/chronometer"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="100sp" />
-    
     <TextView
 	    android:id="@+id/intro"
 	    android:layout_width="wrap_content"
@@ -31,52 +24,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/lblStartTraining" />
-
-    <TextView
-	    android:id="@+id/tv"
-	    android:layout_width="wrap_content"
-	    android:layout_height="0dip"
-	    android:layout_weight="1"
-	    android:textAppearance="?android:attr/textAppearanceLarge" />
-    
-    <RelativeLayout
-        android:id="@+id/indicator_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/toofast"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:text="zu schnell"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/tooslow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="zu langsam"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-        
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/indicator_container"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/quality_gradient" >
-
-        <ImageView
-            android:id="@+id/indicator"
-            android:layout_width="4dp"
-            android:layout_height="40dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:src="@android:color/black" />
-    </RelativeLayout>
 
 </LinearLayout>
