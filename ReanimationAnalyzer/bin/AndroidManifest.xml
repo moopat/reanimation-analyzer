@@ -15,21 +15,21 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="at.eht13.bls.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="at.eht13.bls.ResultListActivity"
-            android:label="@string/title_activity_result_list" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:label="@string/lblResults" >
+        </activity>
+        <activity
+            android:name="at.eht13.bls.ReanimationActivity"
+            android:label="@string/lblReanimation"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
         </activity>
     </application>
 

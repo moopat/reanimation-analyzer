@@ -3,11 +3,15 @@
 
     <string name="app_name">Reanimation Analyzer</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_result_list">Ergebnisse</string>
+    <string name="lblResults">Ergebnisse</string>
+    <string name="lblReanimation">Reanimation</string>
+    <string name="lblDuration">Dauer</string>
     
     <string name="lblStartTraining">Training starten</string>
-    <string name="lblStopTraining">Training beenden</string>
+    <string name="lblSlideToStop">Zum Stoppen wischen</string>
+    
+    <string name="lblTooFast">zu schnell</string>
+    <string name="lblTooSlow">zu langsam</string>
     
     <string name="durationMinuteSingular">Eine Minute</string>
     <string name="durationMinutePlural">%s Minuten</string>

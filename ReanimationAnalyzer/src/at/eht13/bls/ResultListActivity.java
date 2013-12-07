@@ -124,7 +124,7 @@ public class ResultListActivity extends Activity {
 				durationString.append(getString(R.string.durationSecondPlural, seconds));
 			}
 			
-			description.setText(sdf.format(currentResult.getDate()) + "\nDauer: " + durationString.toString());
+			description.setText(sdf.format(currentResult.getDate()) + "\n"+getString(R.string.lblDuration)+": " + durationString.toString());
 			
 			switch(currentResult.getQuality()){
 				case 1:
