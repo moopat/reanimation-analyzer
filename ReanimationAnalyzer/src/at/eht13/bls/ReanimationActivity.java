@@ -81,6 +81,13 @@ public class ReanimationActivity extends Activity implements OnSeekBarChangeList
     	finish();
     }
 
+    /**
+     * Every second the quality indicator adapts his value according to the current quality.
+     * @TODO: get the current compression rate, or even better, get the percentage of how
+     * far the user is off (-100% is too slow, 0 is correct, 100% is much too fast).
+     * Right now 50 is the best result (places marker in the middle), while 0 and 100 are the worst
+     * cases (placing the marker at the appropriate end).
+     */
 	@Override
 	public void onChronometerTick(Chronometer chronometer) {
 		Random random = new Random();
@@ -143,11 +150,15 @@ public class ReanimationActivity extends Activity implements OnSeekBarChangeList
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		if(seekBar.getProgress() == 100){
 			stopTraining();
+		} else {
+			/**
+			 * For a smoother experience, only reset the seek bar
+			 * if the user did not stop traning.
+			 */
+			seekBar.setProgress(0);
+			currentProgress = 0;
 		}
-		
-		seekBar.setProgress(0);
-		currentProgress = 0;
-		
+
 	}
     
 }
