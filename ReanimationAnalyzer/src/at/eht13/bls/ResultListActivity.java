@@ -19,55 +19,55 @@ import at.eht13.bls.model.TrainingResult;
 import com.google.android.apps.dashclock.ui.SwipeDismissListViewTouchListener;
 
 public class ResultListActivity extends Activity {
-	
+
 	private ArrayList<TrainingResult> results;
 	private ListView list;
 	private TextView empty;
-	
-	private SimpleDateFormat sdf = new SimpleDateFormat("d. MMMM, H:mm", Locale.getDefault());
+
+	private SimpleDateFormat sdf = new SimpleDateFormat("d. MMMM, H:mm",
+			Locale.getDefault());
 	private ResultAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_result_list);
-		
+
 		list = (ListView) findViewById(R.id.list);
 		empty = (TextView) findViewById(R.id.empty);
 
 		initResults();
-		
+
 		adapter = new ResultAdapter();
 		list.setAdapter(adapter);
 		list.setEmptyView(empty);
-		
-		SwipeDismissListViewTouchListener touchListener =
-	      new SwipeDismissListViewTouchListener(
-	              list,
-	              new SwipeDismissListViewTouchListener.DismissCallbacks() {
-	                  public void onDismiss(ListView listView, int[] reverseSortedPositions) {
-	                      for (int position : reverseSortedPositions) {
-	                          adapter.remove(adapter.getItem(position));
-	                      }
-	                      adapter.notifyDataSetChanged();
-	                  }
+
+		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
+				list, new SwipeDismissListViewTouchListener.DismissCallbacks() {
+					public void onDismiss(ListView listView,
+							int[] reverseSortedPositions) {
+						for (int position : reverseSortedPositions) {
+							adapter.remove(adapter.getItem(position));
+						}
+						adapter.notifyDataSetChanged();
+					}
 
 					@Override
 					public boolean canDismiss(int position) {
 						return true;
 					}
-	              });
-		 list.setOnTouchListener(touchListener);
-		 list.setOnScrollListener(touchListener.makeScrollListener());
+				});
+		list.setOnTouchListener(touchListener);
+		list.setOnScrollListener(touchListener.makeScrollListener());
 	}
-	
-	private void initResults(){
+
+	private void initResults() {
 		TrainingResultDAO.init(getApplicationContext());
 		results = TrainingResultDAO.getAllTrainings();
 	}
-	
+
 	private class ResultAdapter extends BaseAdapter {
-		
+
 		private TrainingResult currentResult;
 
 		@Override
@@ -92,55 +92,67 @@ public class ResultListActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			
+
 			currentResult = (TrainingResult) getItem(position);
-			
+
 			/**
 			 * Set a type flag.
 			 */
-			if(convertView == null) {
-				final LayoutInflater inflater = LayoutInflater.from(ResultListActivity.this);
-				convertView = inflater.inflate(R.layout.item_result, parent, false);
+			if (convertView == null) {
+				final LayoutInflater inflater = LayoutInflater
+						.from(ResultListActivity.this);
+				convertView = inflater.inflate(R.layout.item_result, parent,
+						false);
 			}
-			
-			TextView description = ((TextView) convertView.findViewById(R.id.description));
+
+			TextView description = ((TextView) convertView
+					.findViewById(R.id.description));
 			ImageView icon = ((ImageView) convertView.findViewById(R.id.icon));
-			
+
 			StringBuilder durationString = new StringBuilder();
 			int seconds = currentResult.getDuration() % 60;
 			int minutes = currentResult.getDuration() / 60;
-			
-			if(minutes > 0){
-				durationString.append(minutes == 1 ? getString(R.string.durationMinuteSingular) : getString(R.string.durationMinutePlural, minutes));
+
+			if (minutes > 0) {
+				durationString
+						.append(minutes == 1 ? getString(R.string.durationMinuteSingular)
+								: getString(R.string.durationMinutePlural,
+										minutes));
 				durationString.append(" ");
 			}
-			
-			if(seconds > 0){
-				durationString.append(seconds == 1 ? getString(R.string.durationSecondSingular) : getString(R.string.durationSecondPlural, seconds));
+
+			if (seconds > 0) {
+				durationString
+						.append(seconds == 1 ? getString(R.string.durationSecondSingular)
+								: getString(R.string.durationSecondPlural,
+										seconds));
 				durationString.append(" ");
 			}
-			
-			if(minutes < 1 && seconds < 1){
-				durationString.append(getString(R.string.durationSecondPlural, seconds));
+
+			if (minutes < 1 && seconds < 1) {
+				durationString.append(getString(R.string.durationSecondPlural,
+						seconds));
 			}
-			
-			description.setText(sdf.format(currentResult.getDate()) + "\n"+getString(R.string.lblDuration)+": " + durationString.toString());
-			
-			switch(currentResult.getQuality()){
-				case 1:
-					icon.setImageResource(R.drawable.ic_excellent);
-					break;
-				case 2:
-					icon.setImageResource(R.drawable.ic_okay);
-					break;
-				case 3:
-					icon.setImageResource(R.drawable.ic_bad);
-					break;
+
+			description.setText(sdf.format(currentResult.getDate()) + "\n"
+					+ getString(R.string.lblDuration) + ": "
+					+ durationString.toString());
+
+			switch (currentResult.getQuality()) {
+			case 1:
+				icon.setImageResource(R.drawable.ic_excellent);
+				break;
+			case 2:
+				icon.setImageResource(R.drawable.ic_okay);
+				break;
+			case 3:
+				icon.setImageResource(R.drawable.ic_bad);
+				break;
 			}
 
 			return convertView;
 		}
-		
+
 	}
 
 }

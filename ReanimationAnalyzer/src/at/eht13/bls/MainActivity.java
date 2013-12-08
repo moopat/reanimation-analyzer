@@ -11,61 +11,60 @@ import android.widget.Button;
 import at.eht13.bls.db.TrainingResultDAO;
 
 public class MainActivity extends Activity implements OnClickListener {
-	
+
 	public static final int STATE_IDLE = 1;
 	public static final int STATE_RUNNING = 2;
 
 	private Button button;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
 
-        button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(this);
-    }
+		button = (Button) findViewById(R.id.button);
+		button.setOnClickListener(this);
+	}
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
 	@Override
 	public void onClick(View v) {
-		
-		if(button.isPressed()){
+
+		if (button.isPressed()) {
 			Intent aintent = new Intent(this, ReanimationActivity.class);
-        	startActivityForResult(aintent, 1001);
+			startActivityForResult(aintent, 1001);
 		}
-		
+
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    if (requestCode == 1001) {
-	    	Intent intent = new Intent(this, ResultListActivity.class);
-        	startActivity(intent);
-	    }
+		if (requestCode == 1001) {
+			Intent intent = new Intent(this, ResultListActivity.class);
+			startActivity(intent);
+		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle presses on the action bar items
-	    switch (item.getItemId()) {
-	        case R.id.action_reset:
-	            TrainingResultDAO.deleteAll();
-	            return true;
-	        case R.id.action_results:
-	        	Intent intent = new Intent(this, ResultListActivity.class);
-	        	startActivity(intent);
-	        	return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+		case R.id.action_reset:
+			TrainingResultDAO.deleteAll();
+			return true;
+		case R.id.action_results:
+			Intent intent = new Intent(this, ResultListActivity.class);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
-    
+
 }
