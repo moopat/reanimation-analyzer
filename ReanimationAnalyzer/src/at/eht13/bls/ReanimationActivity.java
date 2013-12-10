@@ -52,7 +52,8 @@ public class ReanimationActivity extends Activity implements
 
 	private int compressionCnt;
 	private Date lastCompressionTime;
-	private long optimumRate;
+	private int optimumRate;             // frequency
+	private long optimumTimeSpan;
 	private List<Long> results;
 	private int nrResultsForAvgCalc;
 	private double stepSize;
@@ -78,12 +79,15 @@ public class ReanimationActivity extends Activity implements
 		mAccelCurrent = SensorManager.GRAVITY_EARTH;
 		mAccelLast = SensorManager.GRAVITY_EARTH;
 
-		optimumRate = 600;
+		optimumRate = 100;
+		optimumTimeSpan = 60000 / optimumRate;
 		results = new ArrayList<Long>();
 		nrResultsForAvgCalc = 3;
-		stepSize = 100.0 / optimumRate;
+		stepSize = 100.0 / optimumTimeSpan;
 
-		startTraining();
+		compressionCnt = -1;
+		
+		updateIndicator();
 	}
 
 	@Override
@@ -92,9 +96,14 @@ public class ReanimationActivity extends Activity implements
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	private long calculateTotalAverage() {
+		long diff = endTime - startTime;
+		
+		return diff / compressionCnt;
+	}
 
 	private void startTraining() {
-		compressionCnt = 0;
 		lastCompressionTime = new Date();
 
 		chronometer.setBase(SystemClock.elapsedRealtime());
@@ -106,14 +115,35 @@ public class ReanimationActivity extends Activity implements
 		chronometer.stop();
 		endTime = new Date().getTime();
 
-		float duration = (float) ((int) (endTime - startTime)) / 1000;
-
-		TrainingResult tr = new TrainingResult();
-		tr.setDate(new Date());
-		tr.setQuality((new Random().nextInt(3)) + 1);
-		tr.setDuration((int) Math.ceil(duration));
-
-		TrainingResultDAO.insert(tr);
+		if (compressionCnt > 0) {
+			float duration = (float) ((int) (endTime - startTime)) / 1000;
+	
+			TrainingResult tr = new TrainingResult();
+			tr.setDate(new Date());
+			
+			long avg = calculateTotalAverage();
+			
+			double downLimit1 = optimumTimeSpan * 0.9;
+			double downLimit2 = optimumTimeSpan * 0.75;
+			double upLimit1 = optimumTimeSpan * 1.1;
+			double upLimit2 = optimumTimeSpan * 1.25;
+			
+			int quality = 3;
+			
+			if (avg < downLimit2)
+				quality = 3;
+			else if (avg < downLimit1)
+				quality = 2;
+			else if (avg < upLimit1)
+				quality = 1;
+			else if (avg < upLimit2)
+				quality = 2;
+			
+			tr.setQuality(quality);
+			tr.setDuration((int) Math.ceil(duration));
+	
+			TrainingResultDAO.insert(tr);
+		}
 
 		finish();
 	}
@@ -130,23 +160,16 @@ public class ReanimationActivity extends Activity implements
 	 */
 	@Override
 	public void onChronometerTick(Chronometer chronometer) {
-		/*
-		 * Random random = new Random(); final int efficiency =
-		 * random.nextInt(600); final int newLeftMargin = (int)
-		 * (container.getHeight() * efficiency / 600) - indicator.getWidth() /
-		 * 2; final int oldValue = ((MarginLayoutParams)
-		 * indicator.getLayoutParams()).topMargin;
-		 * 
-		 * Animation a = new Animation() {
-		 * 
-		 * @Override protected void applyTransformation(float interpolatedTime,
-		 * Transformation t) { MarginLayoutParams params = (MarginLayoutParams)
-		 * indicator .getLayoutParams(); params.topMargin = oldValue + (int)
-		 * ((newLeftMargin - oldValue) * interpolatedTime);
-		 * indicator.setLayoutParams(params); } };
-		 * 
-		 * a.setDuration(1000); indicator.startAnimation(a);
-		 */
+		Date currentTime = new Date();
+
+		long timeDiff = currentTime.getTime() - lastCompressionTime.getTime();
+		
+		if (timeDiff > optimumTimeSpan + (optimumTimeSpan / 2))
+		{
+			addCompressionTime(timeDiff);
+
+			updateIndicator();
+		}
 	}
 
 	@Override
@@ -214,27 +237,32 @@ public class ReanimationActivity extends Activity implements
 	}
 
 	private void addCompressionTime(Long time) {
-		long optimumRateHalf = optimumRate / 2;
+		long optimumRateHalf = optimumTimeSpan / 2;
 
 		if (time < optimumRateHalf)
 			time = optimumRateHalf;
 
-		if (time > optimumRate + optimumRateHalf)
-			time = optimumRate + optimumRateHalf;
+		if (time > optimumTimeSpan + optimumRateHalf)
+			time = optimumTimeSpan + optimumRateHalf;
 
 		results.add(time);
 	}
-
+	
+	// not used
 	private float calculateMedian() {
-		List<Long> resultsForAvgCalc = new ArrayList<Long>();
-
 		int resultsSize = results.size();
 		
+		if (resultsSize == 0)
+			return optimumTimeSpan / 2;
+		
+		List<Long> resultsForAvgCalc = new ArrayList<Long>();
+
 		int n = nrResultsForAvgCalc;
 
 		if (resultsSize < nrResultsForAvgCalc)
-			n = results.size();
+			n = resultsSize;
 
+		
 		for (int i = 0; i < n; i++) {
 			resultsForAvgCalc.add(results.get(resultsSize - 1 - i));
 		}
@@ -251,6 +279,26 @@ public class ReanimationActivity extends Activity implements
 		}
 
 		return resultsForAvgCalc.get(m);
+	}
+
+	private float calculateAverage() {
+		int resultsSize = results.size();
+		
+		if (resultsSize == 0)
+			return optimumTimeSpan / 2;
+
+		int n = nrResultsForAvgCalc;
+
+		if (resultsSize < nrResultsForAvgCalc)
+			n = resultsSize;
+
+		long sum = 0;
+		
+		for (int i = 0; i < n; i++) {
+			sum += results.get(resultsSize - 1 - i);
+		}
+
+		return sum / n;
 	}
 
 	@Override
@@ -274,40 +322,49 @@ public class ReanimationActivity extends Activity implements
 
 			// Make this higher or lower according to how much
 			// compression you want to detect
-			if (mAccel > 2.5) {
-				Date currentTime = new Date();
-
-				long timeDiff = currentTime.getTime() - lastCompressionTime.getTime();
-
-				if (timeDiff > 300) {
-					addCompressionTime(timeDiff);
-
-					double medianNormalized = (calculateMedian() - (optimumRate / 2)) * stepSize;
-					
-					// display median
-					final int newLeftMargin = (int) (container.getHeight() * medianNormalized / 100) - indicator.getWidth() / 2;
-					final int oldValue = ((MarginLayoutParams) indicator.getLayoutParams()).topMargin;
-
-					Animation a = new Animation() {
-
-						@Override
-						protected void applyTransformation(
-								float interpolatedTime, Transformation t) {
-							MarginLayoutParams params = (MarginLayoutParams) indicator
-									.getLayoutParams();
-							params.topMargin = oldValue + (int) ((newLeftMargin - oldValue) * interpolatedTime);
-							indicator.setLayoutParams(params);
-						}
-					};
-
-					a.setDuration(300);
-					indicator.startAnimation(a);
-
-					lastCompressionTime = currentTime;
+			if (mAccel > 3) {
+				if (compressionCnt < 0) {
 					compressionCnt++;
+					startTraining();
+				} else {
+					Date currentTime = new Date();
+	
+					long timeDiff = currentTime.getTime() - lastCompressionTime.getTime();
+	
+					if (timeDiff > 300) {
+						addCompressionTime(timeDiff);
+	
+						updateIndicator();
+	
+						lastCompressionTime = currentTime;
+						compressionCnt++;
+					}
 				}
 			}
 		}
+	}
+	
+	private void updateIndicator() {
+		double avgNormalized = (calculateAverage() - (optimumTimeSpan / 2)) * stepSize;
+		
+		final int newLeftMargin = (int) (container.getHeight() * avgNormalized / 100) - indicator.getWidth() / 2;
+		final int oldValue = ((MarginLayoutParams) indicator.getLayoutParams()).topMargin;
+
+		Animation a = new Animation() {
+
+			@Override
+			protected void applyTransformation(
+					float interpolatedTime, Transformation t) {
+				MarginLayoutParams params = (MarginLayoutParams) indicator
+						.getLayoutParams();
+				params.topMargin = oldValue + (int) ((newLeftMargin - oldValue) * interpolatedTime);
+				
+				indicator.setLayoutParams(params);
+			}
+		};
+
+		a.setDuration(300);
+		indicator.startAnimation(a);
 	}
 
 }
