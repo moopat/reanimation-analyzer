@@ -8,12 +8,14 @@ import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup.MarginLayoutParams;
@@ -58,11 +60,15 @@ public class ReanimationActivity extends Activity implements
 	private List<Long> results;
 	private int nrResultsForAvgCalc;
 	private double stepSize;
+	
+	private SharedPreferences prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_reanimation);
+		
+		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		container = (RelativeLayout) findViewById(R.id.indicator_container);
 		chronometer = (Chronometer) findViewById(R.id.chronometer);
@@ -80,7 +86,13 @@ public class ReanimationActivity extends Activity implements
 		mAccelCurrent = SensorManager.GRAVITY_EARTH;
 		mAccelLast = SensorManager.GRAVITY_EARTH;
 
-		optimumRate = 100;
+		/**
+		 * The rate can be changed here:
+		 * http://www.moop.at/bls/
+		 * It is updated everytime the app is started and when opening the menu and pressing Refresh
+		 * in MainActivity.
+		 */
+		optimumRate = prefs.getInt("RATE", getResources().getInteger(R.integer.default_rate));
 		optimumTimeSpan = 60000 / optimumRate;
 		results = new ArrayList<Long>();
 		nrResultsForAvgCalc = 3;

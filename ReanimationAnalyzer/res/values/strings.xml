@@ -19,7 +19,7 @@
     <string name="lblResetDatabase">Datenbank zurücksetzen</string>
     <string name="emptyResultList">Es gibt noch keine Trainingsergebnisse</string>
     <string name="infoBackDisabled">Bitte Wischen um das Training zu beenden.</string>
-    <string name="introduction">Lege das Smartphone in die Mitte des Brustkorbs, drücke Start und beginne mit der Reanimation (platziere deine Hände am Handy).</string>
+    <string name="introduction">Lege das Smartphone in die Mitte des Brustkorbs, drücke Start und beginne mit der Reanimation (platziere deine Hände am Handy). \nFühre %s Herzdruckmassagen pro Minute durch.</string>
     <string name="title_activity_info">Info</string>
     <string name="info">Das ist der Info-Text. Das ist der Info-Text. Das ist der Info-Text. Das ist der Info-Text. Das ist der Info-Text.</string>
 
