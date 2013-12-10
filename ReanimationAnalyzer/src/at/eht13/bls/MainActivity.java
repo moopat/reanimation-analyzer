@@ -45,8 +45,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 1001) {
+		if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
 			Intent intent = new Intent(this, ResultListActivity.class);
+			intent.putExtra("highlightLast", true);
 			startActivity(intent);
 		}
 	}

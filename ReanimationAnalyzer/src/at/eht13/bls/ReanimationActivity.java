@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import at.eht13.bls.db.TrainingResultDAO;
 import at.eht13.bls.model.TrainingResult;
@@ -143,6 +144,18 @@ public class ReanimationActivity extends Activity implements
 			tr.setDuration((int) Math.ceil(duration));
 	
 			TrainingResultDAO.insert(tr);
+			
+			if (getParent() == null) {
+				setResult(Activity.RESULT_OK);
+			} else {
+				getParent().setResult(Activity.RESULT_OK);
+			}
+		} else {
+			if (getParent() == null) {
+				setResult(Activity.RESULT_CANCELED);
+			} else {
+				getParent().setResult(Activity.RESULT_CANCELED);
+			}
 		}
 
 		finish();
@@ -347,7 +360,7 @@ public class ReanimationActivity extends Activity implements
 	private void updateIndicator() {
 		double avgNormalized = (calculateAverage() - (optimumTimeSpan / 2)) * stepSize;
 		
-		final int newLeftMargin = (int) (container.getHeight() * avgNormalized / 100) - indicator.getWidth() / 2;
+		final int newTopMargin = (int) (container.getHeight() * avgNormalized / 100) - indicator.getHeight() / 2;
 		final int oldValue = ((MarginLayoutParams) indicator.getLayoutParams()).topMargin;
 
 		Animation a = new Animation() {
@@ -357,7 +370,7 @@ public class ReanimationActivity extends Activity implements
 					float interpolatedTime, Transformation t) {
 				MarginLayoutParams params = (MarginLayoutParams) indicator
 						.getLayoutParams();
-				params.topMargin = oldValue + (int) ((newLeftMargin - oldValue) * interpolatedTime);
+				params.topMargin = oldValue + (int) ((newTopMargin - oldValue) * interpolatedTime);
 				
 				indicator.setLayoutParams(params);
 			}
@@ -365,6 +378,21 @@ public class ReanimationActivity extends Activity implements
 
 		a.setDuration(300);
 		indicator.startAnimation(a);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if(compressionCnt < 1){
+			if (getParent() == null) {
+				setResult(Activity.RESULT_CANCELED);
+			} else {
+				getParent().setResult(Activity.RESULT_CANCELED);
+			}
+			finish();
+		} else {
+			Toast.makeText(getApplicationContext(), getString(R.string.infoBackDisabled), Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 
 }

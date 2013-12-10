@@ -27,11 +27,17 @@ public class ResultListActivity extends Activity {
 	private SimpleDateFormat sdf = new SimpleDateFormat("d. MMMM, H:mm",
 			Locale.getDefault());
 	private ResultAdapter adapter;
+	boolean highlightLast = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_result_list);
+		
+		/**
+		 * Has the calling activity required us to highlight the first entry of the list?
+		 */
+		highlightLast = getIntent().getBooleanExtra("highlightLast", false);
 
 		list = (ListView) findViewById(R.id.list);
 		empty = (TextView) findViewById(R.id.empty);
@@ -42,6 +48,9 @@ public class ResultListActivity extends Activity {
 		list.setAdapter(adapter);
 		list.setEmptyView(empty);
 
+		/**
+		 * Delete items from the list by swiping them.
+		 */
 		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
 				list, new SwipeDismissListViewTouchListener.DismissCallbacks() {
 					public void onDismiss(ListView listView,
@@ -59,13 +68,23 @@ public class ResultListActivity extends Activity {
 				});
 		list.setOnTouchListener(touchListener);
 		list.setOnScrollListener(touchListener.makeScrollListener());
+		
 	}
 
+	/**
+	 * Load Training Results from the database
+	 * into an ArrayList that can be connected to
+	 * the ListView.
+	 */
 	private void initResults() {
 		TrainingResultDAO.init(getApplicationContext());
 		results = TrainingResultDAO.getAllTrainings();
 	}
 
+	/**
+	 * The adapter takes care of displaying traning results
+	 * in a list.
+	 */
 	private class ResultAdapter extends BaseAdapter {
 
 		private TrainingResult currentResult;
@@ -95,20 +114,17 @@ public class ResultListActivity extends Activity {
 
 			currentResult = (TrainingResult) getItem(position);
 
-			/**
-			 * Set a type flag.
-			 */
 			if (convertView == null) {
-				final LayoutInflater inflater = LayoutInflater
-						.from(ResultListActivity.this);
-				convertView = inflater.inflate(R.layout.item_result, parent,
-						false);
+				final LayoutInflater inflater = LayoutInflater.from(ResultListActivity.this);
+				convertView = inflater.inflate(R.layout.item_result, parent, false);
 			}
 
-			TextView description = ((TextView) convertView
-					.findViewById(R.id.description));
+			TextView description = ((TextView) convertView.findViewById(R.id.description));
 			ImageView icon = ((ImageView) convertView.findViewById(R.id.icon));
 
+			/**
+			 * Create text for listitem.
+			 */
 			StringBuilder durationString = new StringBuilder();
 			int seconds = currentResult.getDuration() % 60;
 			int minutes = currentResult.getDuration() / 60;
@@ -138,17 +154,25 @@ public class ResultListActivity extends Activity {
 					+ getString(R.string.lblDuration) + ": "
 					+ durationString.toString());
 
+			/**
+			 * Set icon depening on reanimation quality.
+			 */
 			switch (currentResult.getQuality()) {
-			case 1:
-				icon.setImageResource(R.drawable.ic_excellent);
-				break;
-			case 2:
-				icon.setImageResource(R.drawable.ic_okay);
-				break;
-			case 3:
-				icon.setImageResource(R.drawable.ic_bad);
-				break;
+				case 1:
+					icon.setImageResource(R.drawable.ic_excellent);
+					break;
+				case 2:
+					icon.setImageResource(R.drawable.ic_okay);
+					break;
+				case 3:
+					icon.setImageResource(R.drawable.ic_bad);
+					break;
 			}
+			
+			/**
+			 * Highlight the first element if required.
+			 */
+			convertView.setBackgroundColor((highlightLast && position == 0) ? getResources().getColor(R.color.yellow_light) : getResources().getColor(android.R.color.transparent));
 
 			return convertView;
 		}
