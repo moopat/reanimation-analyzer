@@ -63,6 +63,10 @@ public class MainActivity extends Activity implements OnClickListener {
 			Intent intent = new Intent(this, ResultListActivity.class);
 			startActivity(intent);
 			return true;
+		case R.id.action_info:
+			Intent iintent = new Intent(this, InfoActivity.class);
+			startActivity(iintent);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
