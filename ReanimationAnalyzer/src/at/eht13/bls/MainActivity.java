@@ -38,8 +38,12 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		
-		updateRate();
 		updateText();
+	}
+	
+	public void onResume(){
+		super.onResume();
+		updateRate();
 	}
 	
 	private void updateRate(){

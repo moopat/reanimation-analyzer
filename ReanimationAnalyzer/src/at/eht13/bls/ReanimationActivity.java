@@ -13,11 +13,17 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -33,7 +39,7 @@ import at.eht13.bls.db.TrainingResultDAO;
 import at.eht13.bls.model.TrainingResult;
 
 public class ReanimationActivity extends Activity implements
-		OnSeekBarChangeListener, OnChronometerTickListener, SensorEventListener {
+		OnSeekBarChangeListener, OnChronometerTickListener, SensorEventListener, OnLoadCompleteListener, OnClickListener {
 
 	private Chronometer chronometer;
 	private ImageView indicator;
@@ -61,7 +67,16 @@ public class ReanimationActivity extends Activity implements
 	private int nrResultsForAvgCalc;
 	private double stepSize;
 	
+	private SoundPool sp;
+	boolean soundReady = false;
+	int sound;
+	private CountDownTimer timer;
+	private int tickCount = 0;
+	
 	private SharedPreferences prefs;
+	private ImageView switcher;
+	private boolean playTicks = true;
+	private String KEY_PLAYTICKS = "playticks";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +84,18 @@ public class ReanimationActivity extends Activity implements
 		setContentView(R.layout.activity_reanimation);
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		playTicks = prefs.getBoolean(KEY_PLAYTICKS, playTicks);
 
 		container = (RelativeLayout) findViewById(R.id.indicator_container);
 		chronometer = (Chronometer) findViewById(R.id.chronometer);
 		indicator = (ImageView) findViewById(R.id.indicator);
 		unlocker = (SeekBar) findViewById(R.id.unlocker);
+		switcher = (ImageView) findViewById(R.id.silencer);
 
 		unlocker.setOnSeekBarChangeListener(this);
 		chronometer.setOnChronometerTickListener(this);
+		switcher.setOnClickListener(this);
 
 		TrainingResultDAO.init(getApplicationContext());
 
@@ -100,7 +119,15 @@ public class ReanimationActivity extends Activity implements
 
 		compressionCnt = -1;
 		
+		sp = new SoundPool(1, AudioManager.STREAM_ALARM, 0);
+		sp.setOnLoadCompleteListener(this);
+        sound = sp.load(this, R.raw.woosh, 1);
+		
 		updateIndicator();
+		
+		if(!playTicks){
+			switcher.setImageResource(R.drawable.ic_action_muted);
+		}
 	}
 
 	@Override
@@ -122,6 +149,33 @@ public class ReanimationActivity extends Activity implements
 		chronometer.setBase(SystemClock.elapsedRealtime());
 		chronometer.start();
 		startTime = new Date().getTime();
+		
+		startTickTack();
+	}
+	
+	private void startTickTack(){
+		timer = new CountDownTimer(optimumTimeSpan * 1000, optimumTimeSpan){
+			
+			public void onTick(long millisUntilFinished) {
+		        playSound();
+		     }
+
+		     public void onFinish() {
+		    	 startTickTack();
+		     }
+		     
+		}.start();
+	}
+	
+	private void stopTickTack(){
+		timer.cancel();
+	}
+	
+	private void playSound(){
+		if(soundReady && tickCount > 0 && playTicks){
+			sp.play(sound, 1, 1, 1, 0, 1.5f);
+		}
+		tickCount++;
 	}
 
 	private void stopTraining() {
@@ -259,6 +313,7 @@ public class ReanimationActivity extends Activity implements
 	protected void onPause() {
 		super.onPause();
 		sensorMan.unregisterListener(this);
+		stopTickTack();
 	}
 
 	private void addCompressionTime(Long time) {
@@ -405,6 +460,27 @@ public class ReanimationActivity extends Activity implements
 			Toast.makeText(getApplicationContext(), getString(R.string.infoBackDisabled), Toast.LENGTH_SHORT).show();
 		}
 		
+	}
+
+	@Override
+	public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+		soundReady = true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		SharedPreferences.Editor editor = prefs.edit();
+		
+		if(playTicks){
+			playTicks = false;
+			switcher.setImageResource(R.drawable.ic_action_muted);
+		} else {
+			playTicks = true;
+			switcher.setImageResource(R.drawable.ic_action_loud);
+		}
+		
+		editor.putBoolean(KEY_PLAYTICKS, playTicks);
+		editor.commit();
 	}
 
 }
