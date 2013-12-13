@@ -168,6 +168,9 @@ public class ReanimationActivity extends Activity implements
 	}
 	
 	private void stopTickTack(){
+		if(timer == null){
+			return;
+		}
 		timer.cancel();
 	}
 	
