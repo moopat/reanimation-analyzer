@@ -10,11 +10,12 @@
     tools:context=".InfoActivity" >
 
     <TextView
-	    android:id="@+id/intro"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="@string/info"
-	    android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:id="@+id/intro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="@string/info"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/feedback"

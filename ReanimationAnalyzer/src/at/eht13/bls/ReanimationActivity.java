@@ -405,7 +405,7 @@ public class ReanimationActivity extends Activity implements
 
 			// Make this higher or lower according to how much
 			// compression you want to detect
-			if (mAccel > 3) {
+			if (mAccel > 2.5) {
 				if (compressionCnt < 0) {
 					compressionCnt++;
 					startTraining();
