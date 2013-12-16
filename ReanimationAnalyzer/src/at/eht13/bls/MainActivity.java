@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 	private void updateRate(){
 		RateFetcher.defaultValue = prefs.getInt("RATE", getResources().getInteger(R.integer.default_rate));
 		rateFetcher = new RateFetcherTask(this);
-		rateFetcher.execute(0);
+		rateFetcher.execute();
 	}
 	
 	private void updateText(){

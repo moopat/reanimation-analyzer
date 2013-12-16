@@ -3,7 +3,7 @@ package at.eht13.webservice;
 import android.os.AsyncTask;
 import at.eht13.webservice.RateFetcher.OnRateFetchedListener;
 
-public class RateFetcherTask extends AsyncTask<Integer, Integer, Integer> {
+public class RateFetcherTask extends AsyncTask<Void, Integer, Integer> {
 	private OnRateFetchedListener l;
 	
 	public RateFetcherTask(OnRateFetchedListener l){
@@ -11,7 +11,7 @@ public class RateFetcherTask extends AsyncTask<Integer, Integer, Integer> {
 	}
 
 	@Override
-	protected Integer doInBackground(Integer... params) {
+	protected Integer doInBackground(Void... params) {
 		return RateFetcher.fetch();
 	}
 	
