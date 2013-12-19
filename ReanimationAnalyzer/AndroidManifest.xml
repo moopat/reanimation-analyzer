@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- author: Christiane Prutsch, Markus Deutsch, Clemens Kaar -->
+<!-- 17.12.2013 -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.eht13.bls"
     android:versionCode="1"

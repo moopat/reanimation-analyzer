@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -29,7 +28,6 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Chronometer;
 import android.widget.Chronometer.OnChronometerTickListener;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -38,9 +36,14 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import at.eht13.bls.db.TrainingResultDAO;
 import at.eht13.bls.model.TrainingResult;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class ReanimationActivity extends Activity implements
 		OnSeekBarChangeListener, OnChronometerTickListener, SensorEventListener, OnLoadCompleteListener, OnClickListener {
 
+	// ui elements
 	private Chronometer chronometer;
 	private ImageView indicator;
 	private RelativeLayout container;
@@ -51,6 +54,7 @@ public class ReanimationActivity extends Activity implements
 
 	private int currentProgress = 0;
 
+	// accelerometer sensor
 	private SensorManager sensorMan;
 	private Sensor accelerometer;
 
@@ -67,38 +71,45 @@ public class ReanimationActivity extends Activity implements
 	private int nrResultsForAvgCalc;
 	private double stepSize;
 	
+	// sound output
 	private SoundPool sp;
 	boolean soundReady = false;
 	int sound;
 	private CountDownTimer timer;
 	private int tickCount = 0;
 	
+	// shared preferences
 	private SharedPreferences prefs;
-	private ImageView switcher;
 	private boolean playTicks = true;
 	private String KEY_PLAYTICKS = "playticks";
+	
+	private ImageView switcher;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_reanimation);
 		
+		// access to shared preferences
 		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		
 		playTicks = prefs.getBoolean(KEY_PLAYTICKS, playTicks);
 
+		// get ui control elements
 		container = (RelativeLayout) findViewById(R.id.indicator_container);
 		chronometer = (Chronometer) findViewById(R.id.chronometer);
 		indicator = (ImageView) findViewById(R.id.indicator);
 		unlocker = (SeekBar) findViewById(R.id.unlocker);
 		switcher = (ImageView) findViewById(R.id.silencer);
 
+		// set listeners
 		unlocker.setOnSeekBarChangeListener(this);
 		chronometer.setOnChronometerTickListener(this);
 		switcher.setOnClickListener(this);
 
 		TrainingResultDAO.init(getApplicationContext());
 
+		// init accelerometer sensor
 		sensorMan = (SensorManager) getSystemService(SENSOR_SERVICE);
 		accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mAccel = 0.00f;
@@ -119,6 +130,7 @@ public class ReanimationActivity extends Activity implements
 
 		compressionCnt = -1;
 		
+		// init sound output
 		sp = new SoundPool(1, AudioManager.STREAM_ALARM, 0);
 		sp.setOnLoadCompleteListener(this);
         sound = sp.load(this, R.raw.woosh, 1);
@@ -137,15 +149,18 @@ public class ReanimationActivity extends Activity implements
 		return true;
 	}
 	
+	// calculate the total average compression rate
 	private long calculateTotalAverage() {
 		long diff = endTime - startTime;
 		
 		return diff / compressionCnt;
 	}
 
+	// start the reanimation analysis
 	private void startTraining() {
 		lastCompressionTime = new Date();
 
+		// timer
 		chronometer.setBase(SystemClock.elapsedRealtime());
 		chronometer.start();
 		startTime = new Date().getTime();
@@ -153,6 +168,7 @@ public class ReanimationActivity extends Activity implements
 		startTickTack();
 	}
 	
+	// starts the sound output
 	private void startTickTack(){
 		timer = new CountDownTimer(optimumTimeSpan * 1000, optimumTimeSpan){
 			
@@ -167,6 +183,7 @@ public class ReanimationActivity extends Activity implements
 		}.start();
 	}
 	
+	// stops the sound output
 	private void stopTickTack(){
 		if(timer == null){
 			return;
@@ -174,6 +191,7 @@ public class ReanimationActivity extends Activity implements
 		timer.cancel();
 	}
 	
+	// outputs one tick tack
 	private void playSound(){
 		if(soundReady && tickCount > 0 && playTicks){
 			sp.play(sound, 1, 1, 1, 0, 1.5f);
@@ -181,23 +199,29 @@ public class ReanimationActivity extends Activity implements
 		tickCount++;
 	}
 
+	// stop the reanimation analysis
 	private void stopTraining() {
 		chronometer.stop();
 		endTime = new Date().getTime();
 
+		// only calculate average and show result if the user did compressions
 		if (compressionCnt > 0) {
 			float duration = (float) ((int) (endTime - startTime)) / 1000;
 	
+			// create new training result
 			TrainingResult tr = new TrainingResult();
 			tr.setDate(new Date());
 			
+			// calculate average compression rate
 			long avg = calculateTotalAverage();
 			
+			// limits
 			double downLimit1 = optimumTimeSpan * 0.9;
 			double downLimit2 = optimumTimeSpan * 0.75;
 			double upLimit1 = optimumTimeSpan * 1.1;
 			double upLimit2 = optimumTimeSpan * 1.25;
 			
+			// detect quality
 			int quality = 3;
 			
 			if (avg < downLimit2)
@@ -212,8 +236,10 @@ public class ReanimationActivity extends Activity implements
 			tr.setQuality(quality);
 			tr.setDuration((int) Math.ceil(duration));
 	
+			// save training result
 			TrainingResultDAO.insert(tr);
 			
+			// set activity result
 			if (getParent() == null) {
 				setResult(Activity.RESULT_OK);
 			} else {
@@ -230,20 +256,11 @@ public class ReanimationActivity extends Activity implements
 		finish();
 	}
 
-	/**
-	 * Every second the quality indicator adapts his value according to the
-	 * current quality.
-	 * 
-	 * @TODO: get the current compression rate, or even better, get the
-	 *        percentage of how far the user is off (-100% is too slow, 0 is
-	 *        correct, 100% is much too fast). Right now 50 is the best result
-	 *        (places marker in the middle), while 0 and 100 are the worst cases
-	 *        (placing the marker at the appropriate end).
-	 */
 	@Override
 	public void onChronometerTick(Chronometer chronometer) {
 		Date currentTime = new Date();
 
+		// update current compression rate, if there are no compressions at the moment
 		long timeDiff = currentTime.getTime() - lastCompressionTime.getTime();
 		
 		if (timeDiff > optimumTimeSpan + (optimumTimeSpan / 2))
@@ -256,7 +273,7 @@ public class ReanimationActivity extends Activity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
+		// handle interaction on the action bar items
 		switch (item.getItemId()) {
 		case R.id.action_reset:
 			TrainingResultDAO.deleteAll();
@@ -286,8 +303,7 @@ public class ReanimationActivity extends Activity implements
 
 	@Override
 	public void onStartTrackingTouch(SeekBar seekBar) {
-		// TODO Auto-generated method stub
-
+		// nothing to do :)
 	}
 
 	@Override
@@ -295,10 +311,7 @@ public class ReanimationActivity extends Activity implements
 		if (seekBar.getProgress() == 100) {
 			stopTraining();
 		} else {
-			/**
-			 * For a smoother experience, only reset the seek bar if the user
-			 * did not stop traning.
-			 */
+			// for a smoother experience, only reset the seek bar if the use did not stop training.
 			seekBar.setProgress(0);
 			currentProgress = 0;
 		}
@@ -308,6 +321,7 @@ public class ReanimationActivity extends Activity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
+		// init accelerometer sensor
 		sensorMan.registerListener(this, accelerometer,
 				SensorManager.SENSOR_DELAY_UI);
 	}
@@ -315,10 +329,12 @@ public class ReanimationActivity extends Activity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
+		// pause accelerometer sensor
 		sensorMan.unregisterListener(this);
 		stopTickTack();
 	}
 
+	// adds a new compression time in the result collection
 	private void addCompressionTime(Long time) {
 		long optimumRateHalf = optimumTimeSpan / 2;
 
@@ -331,7 +347,8 @@ public class ReanimationActivity extends Activity implements
 		results.add(time);
 	}
 	
-	// not used
+	// not used (it would be also possible to use the median calculation instead of average calculation)
+	@SuppressWarnings("unused")
 	private float calculateMedian() {
 		int resultsSize = results.size();
 		
@@ -340,21 +357,24 @@ public class ReanimationActivity extends Activity implements
 		
 		List<Long> resultsForAvgCalc = new ArrayList<Long>();
 
+		// only use the last results for median calculation
 		int n = nrResultsForAvgCalc;
 
 		if (resultsSize < nrResultsForAvgCalc)
 			n = resultsSize;
 
-		
 		for (int i = 0; i < n; i++) {
 			resultsForAvgCalc.add(results.get(resultsSize - 1 - i));
 		}
 
+		// only one value for calculation
 		if (resultsForAvgCalc.size() == 1)
 			return resultsForAvgCalc.get(0);
 		
+		// sort values
 		Collections.sort(resultsForAvgCalc);
 
+		// calculate median
 		int m = resultsForAvgCalc.size() / 2;
 
 		if (resultsForAvgCalc.size() % 2 == 0) {
@@ -364,9 +384,11 @@ public class ReanimationActivity extends Activity implements
 		return resultsForAvgCalc.get(m);
 	}
 
+	// calculate the average compression time of the last n compressions
 	private float calculateAverage() {
 		int resultsSize = results.size();
 		
+		// no results available
 		if (resultsSize == 0)
 			return optimumTimeSpan / 2;
 
@@ -377,6 +399,7 @@ public class ReanimationActivity extends Activity implements
 
 		long sum = 0;
 		
+		// calculate average
 		for (int i = 0; i < n; i++) {
 			sum += results.get(resultsSize - 1 - i);
 		}
@@ -386,30 +409,32 @@ public class ReanimationActivity extends Activity implements
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
-
+		// nothing to do :)
 	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
+		// compression detection by analysing the accelerometer values
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			mGravity = event.values.clone();
 
-			// compression detection
+			// only z value used
 			float z = mGravity[2];
 
+			// calculate current acceleration
 			mAccelLast = mAccelCurrent;
 			mAccelCurrent = z;
 			float delta = mAccelCurrent - mAccelLast;
 			mAccel = mAccel * 0.9f + delta;
 
-			// Make this higher or lower according to how much
-			// compression you want to detect
+			// make this higher or lower according to how much compression you want to detect
 			if (mAccel > 2.5) {
 				if (compressionCnt < 0) {
+					// start training at first compression
 					compressionCnt++;
 					startTraining();
 				} else {
+					// update current compression result
 					Date currentTime = new Date();
 	
 					long timeDiff = currentTime.getTime() - lastCompressionTime.getTime();
@@ -428,11 +453,14 @@ public class ReanimationActivity extends Activity implements
 	}
 	
 	private void updateIndicator() {
+		// normalize average
 		double avgNormalized = (calculateAverage() - (optimumTimeSpan / 2)) * stepSize;
 		
+		// calculate margin
 		final int newTopMargin = (int) (container.getHeight() * avgNormalized / 100) - indicator.getHeight() / 2;
 		final int oldValue = ((MarginLayoutParams) indicator.getLayoutParams()).topMargin;
 
+		// move indicator to current average rate
 		Animation a = new Animation() {
 
 			@Override
@@ -452,7 +480,9 @@ public class ReanimationActivity extends Activity implements
 	
 	@Override
 	public void onBackPressed() {
-		if(compressionCnt < 1){
+		// handle situation, if back button is pressed
+		if(compressionCnt < 1) {
+			// reanimation not started
 			if (getParent() == null) {
 				setResult(Activity.RESULT_CANCELED);
 			} else {
@@ -460,6 +490,7 @@ public class ReanimationActivity extends Activity implements
 			}
 			finish();
 		} else {
+			// reanimation started
 			Toast.makeText(getApplicationContext(), getString(R.string.infoBackDisabled), Toast.LENGTH_SHORT).show();
 		}
 		
@@ -472,6 +503,7 @@ public class ReanimationActivity extends Activity implements
 
 	@Override
 	public void onClick(View v) {
+		// activate/deactivate sound output
 		SharedPreferences.Editor editor = prefs.edit();
 		
 		if(playTicks){

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- author: Christiane Prutsch, Markus Deutsch, Clemens Kaar -->
+<!-- 17.12.2013 -->
+
 <resources>
-    
     <integer name="default_rate">100</integer>
-    
 </resources>

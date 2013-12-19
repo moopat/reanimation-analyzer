@@ -16,11 +16,16 @@ import at.eht13.webservice.RateFetcher;
 import at.eht13.webservice.RateFetcher.OnRateFetchedListener;
 import at.eht13.webservice.RateFetcherTask;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class MainActivity extends Activity implements OnClickListener, OnRateFetchedListener {
 
 	public static final int STATE_IDLE = 1;
 	public static final int STATE_RUNNING = 2;
 
+	// ui control elements
 	private RateFetcherTask rateFetcher;
 	private Button button;
 	private TextView intro;
@@ -32,10 +37,12 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// get ui control elements
 		intro = (TextView) findViewById(R.id.intro);
 		button = (Button) findViewById(R.id.button);
 		button.setOnClickListener(this);
 		
+		// init shared preferences
 		prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		
 		updateText();
@@ -46,12 +53,14 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 		updateRate();
 	}
 	
+	// update compression rate from web service
 	private void updateRate(){
 		RateFetcher.defaultValue = prefs.getInt("RATE", getResources().getInteger(R.integer.default_rate));
 		rateFetcher = new RateFetcherTask(this);
 		rateFetcher.execute();
 	}
 	
+	// update compression rate in info text
 	private void updateText(){
 		intro.setText(getString(R.string.introduction, prefs.getInt("RATE", getResources().getInteger(R.integer.default_rate))));
 	}
@@ -65,7 +74,7 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 
 	@Override
 	public void onClick(View v) {
-
+		// switch to reanimation screen
 		if (button.isPressed()) {
 			Intent aintent = new Intent(this, ReanimationActivity.class);
 			startActivityForResult(aintent, 1001);
@@ -75,6 +84,7 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// show result list after reanimation
 		if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
 			Intent intent = new Intent(this, ResultListActivity.class);
 			intent.putExtra("highlightLast", true);
@@ -84,7 +94,7 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
+		// handle inputs on the action bar items
 		switch (item.getItemId()) {
 		case R.id.action_reset:
 			TrainingResultDAO.deleteAll();
@@ -107,6 +117,7 @@ public class MainActivity extends Activity implements OnClickListener, OnRateFet
 
 	@Override
 	public void onRateFetched(int rate) {
+		// new rate fetched from web service
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putInt("RATE", rate);
 		editor.commit();

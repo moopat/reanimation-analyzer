@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
 
+<!-- author: Christiane Prutsch, Markus Deutsch, Clemens Kaar -->
+<!-- 17.12.2013 -->
+
+<resources>
     <string name="app_name">Reanimation Analyzer</string>
     <string name="lblResults">Ergebnisse</string>
     <string name="lblReanimation">Reanimation</string>
@@ -23,5 +26,4 @@
     <string name="introduction">%s Kompressionen/Minute</string>
     <string name="title_activity_info">Info</string>
     <string name="info">Diese App dient zum Training der Herzdruckmassage auf Reanimationspuppen. Zur Analyse der Trainingsaktivität muss das Smart Phone auf dem Brustkorb der Puppe platziert werden. Sobald mit den Kompressionen begonnen wird, erfolgt eine Messung, wie stark die Frequenz von der optimalen Wiederbelebungsfrequenz abweicht.</string>
-
 </resources>

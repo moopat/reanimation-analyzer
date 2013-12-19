@@ -10,13 +10,18 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class RateFetcher {
 	
+	// connection url to the web service
 	private static String url = "http://www.moop.at/bls/getRate.php";
 	public static int defaultValue;
     
     /**
-     * Query server for the current compression rate.
+     * query server for the current compression rate.
      * 
      * @return int rate
      */
@@ -24,12 +29,14 @@ public class RateFetcher {
     	
     	int returnValue = defaultValue;
 
+    	// http connection
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(url);
         
         int tries = 0;
         boolean success = false;
             
+        // try it max. 3 times
         while(tries < 3 && !success){
             try {
             	StringBuilder sb = new StringBuilder();
@@ -38,6 +45,8 @@ public class RateFetcher {
                 HttpEntity entity = response.getEntity();
                 BufferedReader inreader = new BufferedReader(new InputStreamReader(entity.getContent()));
                 String line;
+                
+                // read json string from web service
                 while ((line = inreader.readLine()) != null) {
                     sb.append(line);
                 }
@@ -64,6 +73,7 @@ public class RateFetcher {
     	
     	if(result != null){
     		try {
+    			// parse json
 	    		JSONObject json = new JSONObject(result);
 	    		value = json.getInt("rate");
     		} catch (Exception e) {

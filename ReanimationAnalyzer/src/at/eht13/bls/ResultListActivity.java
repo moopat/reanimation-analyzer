@@ -18,14 +18,19 @@ import at.eht13.bls.model.TrainingResult;
 
 import com.google.android.apps.dashclock.ui.SwipeDismissListViewTouchListener;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class ResultListActivity extends Activity {
 
 	private ArrayList<TrainingResult> results;
+	
+	// ui control elements
 	private ListView list;
 	private TextView empty;
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("d. MMMM, H:mm",
-			Locale.getDefault());
+	private SimpleDateFormat sdf = new SimpleDateFormat("d. MMMM, H:mm", Locale.getDefault());
 	private ResultAdapter adapter;
 	boolean highlightLast = false;
 
@@ -34,11 +39,10 @@ public class ResultListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_result_list);
 		
-		/**
-		 * Has the calling activity required us to highlight the first entry of the list?
-		 */
+		 // has the calling activity required us to highlight the first entry of the list?
 		highlightLast = getIntent().getBooleanExtra("highlightLast", false);
 
+		// get ui control elements
 		list = (ListView) findViewById(R.id.list);
 		empty = (TextView) findViewById(R.id.empty);
 
@@ -48,9 +52,7 @@ public class ResultListActivity extends Activity {
 		list.setAdapter(adapter);
 		list.setEmptyView(empty);
 
-		/**
-		 * Delete items from the list by swiping them.
-		 */
+		// delete items from the list by swiping them.
 		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
 				list, new SwipeDismissListViewTouchListener.DismissCallbacks() {
 					public void onDismiss(ListView listView,
@@ -81,10 +83,7 @@ public class ResultListActivity extends Activity {
 		results = TrainingResultDAO.getAllTrainings();
 	}
 
-	/**
-	 * The adapter takes care of displaying traning results
-	 * in a list.
-	 */
+	// The adapter takes care of displaying training results in a list.
 	private class ResultAdapter extends BaseAdapter {
 
 		private TrainingResult currentResult;
@@ -122,13 +121,12 @@ public class ResultListActivity extends Activity {
 			TextView description = ((TextView) convertView.findViewById(R.id.description));
 			ImageView icon = ((ImageView) convertView.findViewById(R.id.icon));
 
-			/**
-			 * Create text for listitem.
-			 */
+			// create text for list item.
 			StringBuilder durationString = new StringBuilder();
 			int seconds = currentResult.getDuration() % 60;
 			int minutes = currentResult.getDuration() / 60;
 
+			// text for minutes
 			if (minutes > 0) {
 				durationString
 						.append(minutes == 1 ? getString(R.string.durationMinuteSingular)
@@ -137,6 +135,7 @@ public class ResultListActivity extends Activity {
 				durationString.append(" ");
 			}
 
+			// text for seconds
 			if (seconds > 0) {
 				durationString
 						.append(seconds == 1 ? getString(R.string.durationSecondSingular)
@@ -154,9 +153,7 @@ public class ResultListActivity extends Activity {
 					+ getString(R.string.lblDuration) + ": "
 					+ durationString.toString());
 
-			/**
-			 * Set icon depening on reanimation quality.
-			 */
+			// set icon depening on reanimation quality.
 			switch (currentResult.getQuality()) {
 				case 1:
 					icon.setImageResource(R.drawable.ic_excellent);
@@ -169,9 +166,7 @@ public class ResultListActivity extends Activity {
 					break;
 			}
 			
-			/**
-			 * Highlight the first element if required.
-			 */
+			// highlight the first element if required.
 			convertView.setBackgroundColor((highlightLast && position == 0) ? getResources().getColor(R.color.yellow_light) : getResources().getColor(android.R.color.transparent));
 
 			return convertView;

@@ -3,6 +3,10 @@ package at.eht13.webservice;
 import android.os.AsyncTask;
 import at.eht13.webservice.RateFetcher.OnRateFetchedListener;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class RateFetcherTask extends AsyncTask<Void, Integer, Integer> {
 	private OnRateFetchedListener l;
 	

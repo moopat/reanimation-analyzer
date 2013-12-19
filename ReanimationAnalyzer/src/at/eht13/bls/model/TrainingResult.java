@@ -2,13 +2,20 @@ package at.eht13.bls.model;
 
 import java.util.Date;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class TrainingResult {
 
+	// domain class for a training result
+	
 	private int id;
 	private Date date;
 	private int duration;
 	private int quality;
 
+	// constructors
 	public TrainingResult() {
 	}
 
@@ -25,6 +32,7 @@ public class TrainingResult {
 		this.quality = quality;
 	}
 
+	// getter and setter
 	public Date getDate() {
 		return date;
 	}

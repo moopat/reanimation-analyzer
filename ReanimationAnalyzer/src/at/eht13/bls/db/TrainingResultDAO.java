@@ -9,6 +9,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import at.eht13.bls.model.TrainingResult;
 
+/* author:
+ * Christiane Prutsch, Markus Deutsch, Clemens Kaar
+ * 17.12.2013
+ */
 public class TrainingResultDAO {
 
 	private static DatabaseOpenHelper doh;
@@ -19,6 +23,7 @@ public class TrainingResultDAO {
 		}
 	}
 
+	// insert a new training result in the database
 	public static int insert(TrainingResult tr) {
 		int lastid = -1;
 
@@ -41,6 +46,7 @@ public class TrainingResultDAO {
 		return lastid;
 	}
 
+	// reads all reanimation result from the datebase
 	public static ArrayList<TrainingResult> getAllTrainings() {
 		ArrayList<TrainingResult> result = new ArrayList<TrainingResult>();
 
@@ -48,9 +54,11 @@ public class TrainingResultDAO {
 		Cursor cursor = null;
 
 		try {
+			// create query
 			cursor = db.query("trainings", null, null, null, null, null,
 					"endtime DESC");
 
+			// get column indices
 			int idIndex = cursor.getColumnIndex("id");
 			int durationIndex = cursor.getColumnIndex("duration");
 			int qualityIndex = cursor.getColumnIndex("quality");
@@ -58,6 +66,7 @@ public class TrainingResultDAO {
 
 			cursor.moveToFirst();
 
+			// read training results
 			do {
 				TrainingResult tr = new TrainingResult();
 				tr.setId(cursor.getInt(idIndex));
@@ -80,11 +89,13 @@ public class TrainingResultDAO {
 		return result;
 	}
 
+	// delete all reanimation results from database
 	public static void deleteAll() {
 		SQLiteDatabase db = doh.getWritableDatabase();
 		db.delete("trainings", null, null);
 	}
 
+	// delete a specific reanimation result from database
 	public static void delete(TrainingResult tr) {
 		SQLiteDatabase db = doh.getWritableDatabase();
 		db.delete("trainings", "id = ?",
